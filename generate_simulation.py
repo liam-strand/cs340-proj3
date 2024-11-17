@@ -42,7 +42,10 @@ def del_link(links, file, link_time, time):
                 if len(links) > 0:
                     link_rem = random.choice(links)
                     links.remove(link_rem)
-                    file.write("%d DELETE_LINK %d %d\n" % (link_time + 1, link_rem[0], link_rem[1]))
+                    file.write(
+                        "%d DELETE_LINK %d %d\n"
+                        % (link_time + 1, link_rem[0], link_rem[1])
+                    )
                     return t + 1
                 break
     return link_time
@@ -91,14 +94,19 @@ def add_link(n, src, removed, links, link_time, file):
     count = 0
     while True:
         while neighbor is None:
-            offset = int(math.floor(math.log(n,2)))
+            offset = int(math.floor(math.log(n, 2)))
             val = random.randint(max(0, src - offset), min(n - 1, src + offset))
             if val not in removed:
                 neighbor = val
         if src in removed:
             stop = 0
         link = (src, neighbor, random_weight())
-        already_exists = any([(l[0] == src and l[1] == neighbor) or (l[0] == neighbor and l[1] == src) for l in links])
+        already_exists = any(
+            [
+                (l[0] == src and l[1] == neighbor) or (l[0] == neighbor and l[1] == src)
+                for l in links
+            ]
+        )
         if already_exists or src == neighbor:
             count += 1
             if count >= timeout:
@@ -130,15 +138,15 @@ def bfs(links, islands, nodes):
     return islands
 
 
-
-
 def generate_simulation(n, degree, time, filename):
     n *= 1.5
     n = int(n)
     nxt = n + 1
     time *= 2
-    if degree > math.log(n,2)-1:
-        raise Exception("Degree must be smaller than log(n) where n is the number of nodes.")
+    if degree > math.log(n, 2) - 1:
+        raise Exception(
+            "Degree must be smaller than log(n) where n is the number of nodes."
+        )
 
     links = []
     removed = []
@@ -158,13 +166,19 @@ def generate_simulation(n, degree, time, filename):
                 continue
 
             possible_neighbors = []
-            for j in range(int(math.floor(math.log(n,2)))):
-                offset = 1<<j
+            for j in range(int(math.floor(math.log(n, 2)))):
+                offset = 1 << j
                 offset *= 1.5
                 offset = int(offset)
-                for neighbor in [i+offset, i-offset]:
+                for neighbor in [i + offset, i - offset]:
                     if neighbor >= 0 and neighbor < n and neighbor not in removed:
-                        already_exists = any([(l[0] == i and l[1] == neighbor) or (l[0] == neighbor and l[1] == i) for l in links])
+                        already_exists = any(
+                            [
+                                (l[0] == i and l[1] == neighbor)
+                                or (l[0] == neighbor and l[1] == i)
+                                for l in links
+                            ]
+                        )
                         if not already_exists:
                             possible_neighbors.append(neighbor)
             # choose random links
@@ -197,15 +211,17 @@ def generate_simulation(n, degree, time, filename):
 
         # change links
         # file.write("%d DRAW_TOPOLOGY\n" % link_time);
-        for t in range(link_time+1, time):
+        for t in range(link_time + 1, time):
             # link change events are a poisson process.
             # we want the time between events to be roughly 10 * MAX_LATENCY
             if 0 == random.randint(0, 10 * MAX_LATENCY):
                 link_to_change = random.choice(links)
                 links.remove(link_to_change)
                 val = random_weight()
-                file.write("%d CHANGE_LINK %d %d %d\n" %
-                           (t, link_to_change[0], link_to_change[1], val))
+                file.write(
+                    "%d CHANGE_LINK %d %d %d\n"
+                    % (t, link_to_change[0], link_to_change[1], val)
+                )
                 link = (link_to_change[0], link_to_change[1], val)
                 links.extend([link])
 
@@ -237,21 +253,46 @@ def generate_simulation(n, degree, time, filename):
 
         # print routing results
         for i in set([x for x in range(nxt) if x not in removed]):
-            file.write("%d DRAW_TREE %d\n" % (10*time, i))
+            file.write("%d DRAW_TREE %d\n" % (10 * time, i))
 
 
 if __name__ == "__main__":
-    current_time = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S-%f')
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
     parser = argparse.ArgumentParser(
-        description='Generate random network simulation data file (.event) for Routesim.')
-    parser.add_argument('--nodes', dest='n', action='store',
-                        default=20, help='number of nodes in the graph')
-    parser.add_argument('--degree', dest='degree', action='store',
-                        default=3, help='number of edges connected to each node')
-    parser.add_argument('--time', dest='time', action='store',
-                        default=1000, help='time, in seconds, to run the simulation')
-    parser.add_argument('--out', dest='filename', action='store',
-                        default=current_time, help='output filename prefix')
+        description="Generate random network simulation data file (.event) for Routesim."
+    )
+    parser.add_argument(
+        "--nodes",
+        dest="n",
+        action="store",
+        default=20,
+        help="number of nodes in the graph",
+    )
+    parser.add_argument(
+        "--degree",
+        dest="degree",
+        action="store",
+        default=3,
+        help="number of edges connected to each node",
+    )
+    parser.add_argument(
+        "--time",
+        dest="time",
+        action="store",
+        default=1000,
+        help="time, in seconds, to run the simulation",
+    )
+    parser.add_argument(
+        "--out",
+        dest="filename",
+        action="store",
+        default=current_time,
+        help="output filename prefix",
+    )
     args = parser.parse_args()
-    generate_simulation(n=int(args.n), degree=int(args.degree), time=int(args.time),
-                        filename=args.filename)
+    generate_simulation(
+        n=int(args.n),
+        degree=int(args.degree),
+        time=int(args.time),
+        filename=args.filename,
+    )

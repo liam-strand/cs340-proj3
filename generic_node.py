@@ -19,7 +19,10 @@ class Generic_Node(Node):
             # self.send_to_neighbors("hello")
             self.send_to_neighbor(neighbor, "hello")
 
-        self.logging.debug('link update, neighbor %d, latency %d, time %d' % (neighbor, latency, self.get_time()))
+        self.logging.debug(
+            "link update, neighbor %d, latency %d, time %d"
+            % (neighbor, latency, self.get_time())
+        )
 
     def process_incoming_routing_message(self, m):
         self.logging.debug("receive a message at Time %d. " % self.get_time() + m)
